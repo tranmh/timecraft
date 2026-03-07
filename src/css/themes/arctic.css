@@ -1,0 +1,41 @@
+/* Arctic theme: icy, crystalline winter, cool blue tones */
+
+.theme-arctic {
+  background-color: #0b1628;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cdefs%3E%3Cpattern id='frost' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 30 0 L 30 60 M 0 30 L 60 30 M 10 10 L 50 50 M 50 10 L 10 50' fill='none' stroke='rgba(180,220,255,0.03)' stroke-width='0.5'/%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(180,220,255,0.05)'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='%230b1628'/%3E%3Crect width='100%25' height='100%25' fill='url(%23frost)'/%3E%3C/svg%3E");
+  color: #b4dcff;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.theme-arctic .clock-panel {
+  background: rgba(11, 22, 40, 0.75);
+  border: 1px solid rgba(180, 220, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.theme-arctic .clock-letter {
+  color: rgba(180, 220, 255, 0.12);
+}
+
+.theme-arctic .clock-letter.active {
+  color: #b4dcff;
+  text-shadow:
+    0 0 8px rgba(180, 220, 255, 0.5),
+    0 0 20px rgba(180, 220, 255, 0.3);
+}
+
+.theme-arctic .control-group label {
+  color: rgba(180, 220, 255, 0.5);
+}
+
+.theme-arctic .demo-time-display {
+  color: rgba(180, 220, 255, 0.7);
+}
+
+.theme-arctic select,
+.theme-arctic button,
+.theme-arctic .bg-upload-label,
+.theme-arctic .demo-toggle {
+  border-color: rgba(180, 220, 255, 0.15);
+  background: rgba(180, 220, 255, 0.06);
+}

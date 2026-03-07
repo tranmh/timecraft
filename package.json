@@ -1,0 +1,26 @@
+{
+  "name": "timecraft",
+  "version": "1.0.0",
+  "description": "Word clock web app - displays time as illuminated words",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve src",
+    "build": "node build.js",
+    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --config jest.config.js",
+    "test:watch": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --config jest.config.js --watch",
+    "test:e2e": "npx playwright test",
+    "test:all": "npm test && npm run test:e2e",
+    "icons": "node scripts/generate-icons.js"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@playwright/test": "^1.45.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "serve": "^14.2.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
+}
