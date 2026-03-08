@@ -24,6 +24,7 @@ import { localeVi } from '../locales/vi.js';
 import { localeSwg } from '../locales/swg.js';
 import { localeBar } from '../locales/bar.js';
 import { localeSxu } from '../locales/sxu.js';
+import { localeAt } from '../locales/at.js';
 
 const LOCALES = {
   en: localeEn,
@@ -43,6 +44,7 @@ const LOCALES = {
   swg: localeSwg,
   bar: localeBar,
   sxu: localeSxu,
+  at: localeAt,
 };
 
 let currentLocale = 'en';
@@ -101,6 +103,7 @@ function init() {
             <option value="swg">Schwäbisch</option>
             <option value="bar">Boarisch</option>
             <option value="sxu">Sächsisch</option>
+            <option value="at">Österreichisch</option>
           </select>
         </div>
         <div class="control-group">
