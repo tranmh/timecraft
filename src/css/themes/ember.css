@@ -9,12 +9,12 @@
 
 .theme-ember .clock-panel {
   background: rgba(26, 10, 0, 0.75);
-  border: 1px solid rgba(255, 106, 0, 0.12);
+  border: 1px solid rgba(255, 106, 0, 0.18);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .theme-ember .clock-letter {
-  color: rgba(255, 106, 0, 0.12);
+  color: rgba(255, 106, 0, 0.18);
   font-weight: 600;
 }
 

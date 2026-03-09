@@ -3,7 +3,7 @@
  */
 
 import { getCurrentTime, getActiveWordKeys } from './clock.js';
-import { buildGrid, highlightWords } from './renderer.js';
+import { buildGrid, highlightWords, setEffect, isEffectEnabled } from './renderer.js';
 import { initDemo, isDemoMode, getDemoTime } from './demo.js';
 import { initThemes, setTheme, getThemes, getTheme, setCustomBackground, resetBackground, nextWallpaper, prevWallpaper } from './themes.js';
 import './wallpapers.js';
@@ -122,6 +122,14 @@ function init() {
             <button id="bg-reset">Reset</button>
           </div>
         </div>
+        <div class="control-group">
+          <label>Effects</label>
+          <div class="effect-buttons">
+            <button id="effect-breathe" class="effect-toggle">Breathe</button>
+            <button id="effect-twinkle" class="effect-toggle">Twinkle</button>
+            <button id="effect-matrix" class="effect-toggle">Matrix</button>
+          </div>
+        </div>
         <div id="demo-container"></div>
       </div>
     </div>
@@ -198,6 +206,25 @@ function init() {
   bgNext.addEventListener('click', () => {
     nextWallpaper(app);
   });
+
+  // Effects toggles
+  const savedEffects = JSON.parse(localStorage.getItem('timecraft-effects') || '[]');
+  const effectNames = ['breathe', 'twinkle', 'matrix'];
+  for (const name of effectNames) {
+    const btn = document.getElementById(`effect-${name}`);
+    if (savedEffects.includes(name)) {
+      btn.classList.add('active');
+      setEffect(name, true);
+    }
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      const enabled = btn.classList.contains('active');
+      setEffect(name, enabled);
+      // Persist
+      const current = effectNames.filter(n => document.getElementById(`effect-${n}`).classList.contains('active'));
+      localStorage.setItem('timecraft-effects', JSON.stringify(current));
+    });
+  }
 
   // Build initial grid
   buildGrid(getLocale(), gridContainer);

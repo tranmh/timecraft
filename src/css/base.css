@@ -66,12 +66,45 @@ body {
   font-size: 1.4rem;
   font-weight: 700;
   text-transform: uppercase;
-  opacity: 0.15;
+  opacity: 0.30;
   transition: opacity 0.4s ease, color 0.4s ease, text-shadow 0.4s ease;
 }
 
 .clock-letter.active {
   opacity: 1;
+}
+
+/* Effect animation classes */
+.clock-letter.breathe-pulse {
+  opacity: 0.55;
+}
+
+.clock-letter.twinkle {
+  opacity: 0.45;
+}
+
+.clock-letter.matrix-pulse {
+  opacity: 0.55;
+}
+
+/* Effect toggle buttons */
+.effect-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.effect-toggle {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.effect-toggle.active {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Minute indicator row */
