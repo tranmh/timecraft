@@ -7,7 +7,7 @@
  * Usage: node build.js
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync } from 'fs';
 import { resolve, dirname, join, relative } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -18,8 +18,11 @@ const SRC_DIR = join(__dirname, 'src');
 const DIST_DIR = join(__dirname, 'dist');
 const HTML_FILE = join(SRC_DIR, 'index.html');
 
-// Maximum number of wallpapers to embed per theme (1-15). Lower = smaller dist/index.html.
-const MAX_WALLPAPERS_PER_THEME = 3;
+// Build variants: each gets its own subfolder under dist/
+const BUILD_VARIANTS = [
+  { name: 'lite', maxWallpapers: 3 },
+  { name: 'full', maxWallpapers: 15 },
+];
 
 function readFile(filePath) {
   return readFileSync(filePath, 'utf-8');
@@ -90,7 +93,7 @@ function collectCSS(html) {
   return cssContents.join('\n\n');
 }
 
-function buildWallpaperData() {
+function buildWallpaperData(maxPerTheme) {
   const wpDir = join(SRC_DIR, 'img', 'wallpapers');
   const themes = ['beautiful', 'scientific', 'modern', 'arctic', 'ember', 'forest', 'ocean', 'retro', 'sand', 'cosmos'];
   const data = {};
@@ -103,7 +106,7 @@ function buildWallpaperData() {
     }
 
     const files = [];
-    for (let i = 1; i <= MAX_WALLPAPERS_PER_THEME; i++) {
+    for (let i = 1; i <= maxPerTheme; i++) {
       const filepath = join(themeDir, `${theme}-${i}.jpg`);
       if (existsSync(filepath)) {
         const buf = readFileSync(filepath);
@@ -119,24 +122,20 @@ function buildWallpaperData() {
 function build() {
   console.log('Building...');
 
-  if (!existsSync(DIST_DIR)) {
-    mkdirSync(DIST_DIR, { recursive: true });
-  }
+  // Prepare shared HTML template (CSS inlined, JS resolved, but no wallpaper data yet)
+  let baseHtml = readFile(HTML_FILE);
+  const allCSS = collectCSS(baseHtml);
 
-  let html = readFile(HTML_FILE);
+  baseHtml = baseHtml.replace(/<link\s+rel="stylesheet"\s+href="[^"]+"\s*\/?>\n?/g, '');
 
-  const allCSS = collectCSS(html);
-
-  html = html.replace(/<link\s+rel="stylesheet"\s+href="[^"]+"\s*\/?>\n?/g, '');
-
-  const jsMatch = html.match(/<script\s+type="module"\s+src="([^"]+)"\s*><\/script>/);
-  let allJS = '';
+  const jsMatch = baseHtml.match(/<script\s+type="module"\s+src="([^"]+)"\s*><\/script>/);
+  let baseJS = '';
   if (jsMatch) {
     const jsEntryPath = join(SRC_DIR, jsMatch[1]);
-    allJS = resolveModules(jsEntryPath);
+    baseJS = resolveModules(jsEntryPath);
   }
 
-  html = html.replace(/<script\s+type="module"\s+src="[^"]+"\s*><\/script>\n?/g, '');
+  baseHtml = baseHtml.replace(/<script\s+type="module"\s+src="[^"]+"\s*><\/script>\n?/g, '');
 
   // PWA meta tags
   const pwaMeta = `  <link rel="manifest" href="./manifest.json">
@@ -145,41 +144,60 @@ function build() {
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">`;
 
-  html = html.replace('</head>', `${pwaMeta}\n</head>`);
+  baseHtml = baseHtml.replace('</head>', `${pwaMeta}\n</head>`);
 
   if (allCSS) {
-    html = html.replace(
+    baseHtml = baseHtml.replace(
       '</head>',
       `  <style>\n${allCSS}\n  </style>\n</head>`,
     );
   }
 
-  if (allJS) {
-    // Embed wallpaper data as base64
-    const wpData = buildWallpaperData();
-    const wpCount = Object.values(wpData).reduce((sum, arr) => sum + arr.length, 0);
-    console.log(`Embedding ${wpCount} wallpapers...`);
-    allJS = allJS.replace(
-      "'__WALLPAPER_DATA_PLACEHOLDER__'",
-      JSON.stringify(wpData),
-    );
+  // Build each variant
+  for (const variant of BUILD_VARIANTS) {
+    const variantDir = join(DIST_DIR, variant.name);
+    mkdirSync(variantDir, { recursive: true });
 
-    html = html.replace(
-      '</body>',
-      `  <script>\n${allJS}\n  </script>\n</body>`,
-    );
+    let html = baseHtml;
+
+    if (baseJS) {
+      let js = baseJS;
+      const wpData = buildWallpaperData(variant.maxWallpapers);
+      const wpCount = Object.values(wpData).reduce((sum, arr) => sum + arr.length, 0);
+      console.log(`[${variant.name}] Embedding ${wpCount} wallpapers (max ${variant.maxWallpapers}/theme)...`);
+      js = js.replace(
+        "'__WALLPAPER_DATA_PLACEHOLDER__'",
+        JSON.stringify(wpData),
+      );
+
+      html = html.replace(
+        '</body>',
+        `  <script>\n${js}\n  </script>\n</body>`,
+      );
+    }
+
+    const outputPath = join(variantDir, 'index.html');
+    writeFileSync(outputPath, html, 'utf-8');
+
+    // Copy PWA assets
+    copyFileSync(join(SRC_DIR, 'manifest.json'), join(variantDir, 'manifest.json'));
+    copyFileSync(join(SRC_DIR, 'sw.js'), join(variantDir, 'sw.js'));
+
+    // Copy icons directory
+    const iconsSrc = join(DIST_DIR, 'icons');
+    if (existsSync(iconsSrc)) {
+      const iconsDest = join(variantDir, 'icons');
+      mkdirSync(iconsDest, { recursive: true });
+      for (const file of readdirSync(iconsSrc)) {
+        copyFileSync(join(iconsSrc, file), join(iconsDest, file));
+      }
+    }
+
+    const sizeKB = (Buffer.byteLength(html, 'utf-8') / 1024).toFixed(1);
+    console.log(`[${variant.name}] Build complete: dist/${variant.name}/index.html (${sizeKB} KB)`);
   }
 
-  const outputPath = join(DIST_DIR, 'index.html');
-  writeFileSync(outputPath, html, 'utf-8');
-
-  // Copy PWA assets
-  copyFileSync(join(SRC_DIR, 'manifest.json'), join(DIST_DIR, 'manifest.json'));
-  copyFileSync(join(SRC_DIR, 'sw.js'), join(DIST_DIR, 'sw.js'));
-  console.log('Copied PWA assets (manifest.json, sw.js)');
-
-  const sizeKB = (Buffer.byteLength(html, 'utf-8') / 1024).toFixed(1);
-  console.log(`Build complete: dist/index.html (${sizeKB} KB)`);
+  console.log('All builds complete.');
 }
 
 build();

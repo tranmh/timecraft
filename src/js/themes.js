@@ -101,6 +101,52 @@ export function setCustomBackground(dataUrl, appEl) {
   applyBackground(currentTheme, appEl);
 }
 
+export function randomWallpaper(appEl) {
+  const customBg = localStorage.getItem(`timecraft-bg-${currentTheme}`);
+  if (customBg) {
+    localStorage.removeItem(`timecraft-bg-${currentTheme}`);
+  }
+  const wps = WALLPAPERS[currentTheme];
+  if (wps.length <= 1) return;
+  let newIdx;
+  do {
+    newIdx = Math.floor(Math.random() * wps.length);
+  } while (newIdx === wallpaperIndex[currentTheme]);
+  wallpaperIndex[currentTheme] = newIdx;
+  localStorage.setItem(`timecraft-wp-idx-${currentTheme}`, newIdx);
+  applyBackground(currentTheme, appEl);
+}
+
+let autoRotateTimer = null;
+let autoRotateAppEl = null;
+
+export function startAutoRotate(appEl, intervalMs) {
+  stopAutoRotate();
+  autoRotateAppEl = appEl;
+  localStorage.setItem('timecraft-auto-rotate', '1');
+  localStorage.setItem('timecraft-auto-rotate-interval', String(intervalMs));
+  autoRotateTimer = setInterval(() => {
+    randomWallpaper(autoRotateAppEl);
+  }, intervalMs);
+}
+
+export function stopAutoRotate() {
+  if (autoRotateTimer !== null) {
+    clearInterval(autoRotateTimer);
+    autoRotateTimer = null;
+  }
+  autoRotateAppEl = null;
+  localStorage.removeItem('timecraft-auto-rotate');
+}
+
+export function isAutoRotating() {
+  return autoRotateTimer !== null;
+}
+
+export function getAutoRotateInterval() {
+  return parseInt(localStorage.getItem('timecraft-auto-rotate-interval'), 10) || 300000;
+}
+
 export function resetBackground(appEl) {
   localStorage.removeItem(`timecraft-bg-${currentTheme}`);
   applyBackground(currentTheme, appEl);

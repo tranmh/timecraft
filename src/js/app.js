@@ -5,7 +5,7 @@
 import { getCurrentTime, getActiveWordKeys } from './clock.js';
 import { buildGrid, highlightWords, setEffect, isEffectEnabled } from './renderer.js';
 import { initDemo, isDemoMode, getDemoTime } from './demo.js';
-import { initThemes, setTheme, getThemes, getTheme, setCustomBackground, resetBackground, nextWallpaper, prevWallpaper } from './themes.js';
+import { initThemes, setTheme, getThemes, getTheme, setCustomBackground, resetBackground, nextWallpaper, prevWallpaper, randomWallpaper, startAutoRotate, stopAutoRotate, isAutoRotating, getAutoRotateInterval } from './themes.js';
 import './wallpapers.js';
 import { localeDe } from '../locales/de.js';
 import { localeEn } from '../locales/en.js';
@@ -115,11 +115,24 @@ function init() {
           <div class="bg-buttons">
             <button id="bg-prev" title="Previous wallpaper">&lsaquo;</button>
             <button id="bg-next" title="Next wallpaper">&rsaquo;</button>
+            <button id="bg-shuffle" title="Random wallpaper">&#x1f500;</button>
             <label class="bg-upload-label">
               Upload
               <input type="file" id="bg-upload" accept="image/*" hidden>
             </label>
             <button id="bg-reset">Reset</button>
+          </div>
+        </div>
+        <div class="control-group auto-rotate-controls">
+          <label>Auto-rotate wallpaper</label>
+          <div class="auto-rotate-row">
+            <button id="auto-rotate-toggle" class="effect-toggle">Off</button>
+            <select id="auto-rotate-interval">
+              <option value="60000">1 min</option>
+              <option value="300000" selected>5 min</option>
+              <option value="900000">15 min</option>
+              <option value="3600000">1 hr</option>
+            </select>
           </div>
         </div>
         <div class="control-group">
@@ -205,6 +218,54 @@ function init() {
 
   bgNext.addEventListener('click', () => {
     nextWallpaper(app);
+  });
+
+  // Shuffle button
+  const bgShuffle = document.getElementById('bg-shuffle');
+  bgShuffle.addEventListener('click', () => {
+    randomWallpaper(app);
+  });
+
+  // Auto-rotate
+  const autoRotateToggle = document.getElementById('auto-rotate-toggle');
+  const autoRotateInterval = document.getElementById('auto-rotate-interval');
+
+  // Restore saved auto-rotate state
+  const savedAutoRotate = localStorage.getItem('timecraft-auto-rotate');
+  const savedInterval = getAutoRotateInterval();
+  autoRotateInterval.value = String(savedInterval);
+
+  function updateAutoRotateUI() {
+    const active = isAutoRotating();
+    autoRotateToggle.textContent = active ? 'On' : 'Off';
+    autoRotateToggle.classList.toggle('active', active);
+  }
+
+  if (savedAutoRotate === '1') {
+    startAutoRotate(app, savedInterval);
+  }
+  updateAutoRotateUI();
+
+  autoRotateToggle.addEventListener('click', () => {
+    if (isAutoRotating()) {
+      stopAutoRotate();
+    } else {
+      startAutoRotate(app, parseInt(autoRotateInterval.value, 10));
+    }
+    updateAutoRotateUI();
+  });
+
+  autoRotateInterval.addEventListener('change', () => {
+    if (isAutoRotating()) {
+      startAutoRotate(app, parseInt(autoRotateInterval.value, 10));
+    }
+  });
+
+  // Restart auto-rotate on theme change
+  themeSelect.addEventListener('change', () => {
+    if (isAutoRotating()) {
+      startAutoRotate(app, parseInt(autoRotateInterval.value, 10));
+    }
   });
 
   // Effects toggles
