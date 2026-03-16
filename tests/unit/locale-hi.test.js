@@ -31,7 +31,7 @@ describe('Hindi locale - word positions match grid', () => {
       TIN: 'TIN', CHAR: 'CHAR', EK: 'EK', DO: 'DO',
       SAT: 'SAT', NAU: 'NAU', ATH: 'ATH', CHE: 'CHE',
       SAV: 'SAV', ADHA: 'ADHA', PANCH_M: 'PANCH', DAS_M: 'DAS',
-      BIS_M: 'BIS',
+      BIS_M: 'BIS', PACHIS_M: 'PACHIS',
     };
 
     for (const [key, text] of Object.entries(expected)) {
@@ -53,9 +53,9 @@ describe('Hindi locale - timeToWords', () => {
     { h: 12, m: 10, expect: ['ABHI', 'BARA', 'DAS_M'] },
     { h: 12, m: 15, expect: ['ABHI', 'BARA', 'SAV'] },
     { h: 12, m: 20, expect: ['ABHI', 'BARA', 'BIS_M'] },
-    { h: 12, m: 25, expect: ['ABHI', 'BARA', 'BIS_M', 'PANCH_M'] },
+    { h: 12, m: 25, expect: ['ABHI', 'BARA', 'PACHIS_M'] },
     { h: 12, m: 30, expect: ['ABHI', 'BARA', 'ADHA'] },
-    { h: 12, m: 35, expect: ['ABHI', 'EK', 'KAM', 'BIS_M', 'PANCH_M'] },
+    { h: 12, m: 35, expect: ['ABHI', 'EK', 'KAM', 'PACHIS_M'] },
     { h: 12, m: 40, expect: ['ABHI', 'EK', 'KAM', 'BIS_M'] },
     { h: 12, m: 45, expect: ['ABHI', 'EK', 'KAM', 'SAV'] },
     { h: 12, m: 50, expect: ['ABHI', 'EK', 'KAM', 'DAS_M'] },

@@ -9,7 +9,7 @@ const hi_GRID = [
   ['B', 'A', 'J', 'E', 'K', 'A', 'M', 'A', 'D', 'H', 'A'],
   ['S', 'A', 'V', 'B', 'I', 'S', 'D', 'A', 'S', 'Y', 'Z'],
   ['P', 'A', 'N', 'C', 'H', 'F', 'G', 'J', 'L', 'M', 'Q'],
-  ['R', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'D', 'F', 'G'],
+  ['P', 'A', 'C', 'H', 'I', 'S', 'C', 'V', 'S', 'X', 'Z'],
   ['H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T'],
 ];
 
@@ -34,6 +34,7 @@ const hi_WORDS = {
   BIS_M:    { row: 6, col: 3, length: 3 },
   DAS_M:    { row: 6, col: 6, length: 3 },
   PANCH_M:  { row: 7, col: 0, length: 5 },
+  PACHIS_M: { row: 8, col: 0, length: 6 },
 };
 
 function hi_getHourWord(h) {
@@ -77,13 +78,13 @@ function hi_timeToWords(hours, minutes) {
       words.push(hi_getHourWord(hours), 'BIS_M');
       break;
     case 25:
-      words.push(hi_getHourWord(hours), 'BIS_M', 'PANCH_M');
+      words.push(hi_getHourWord(hours), 'PACHIS_M');
       break;
     case 30:
       words.push(hi_getHourWord(hours), 'ADHA');
       break;
     case 35:
-      words.push(hourWord, 'KAM', 'BIS_M', 'PANCH_M');
+      words.push(hourWord, 'KAM', 'PACHIS_M');
       break;
     case 40:
       words.push(hourWord, 'KAM', 'BIS_M');
